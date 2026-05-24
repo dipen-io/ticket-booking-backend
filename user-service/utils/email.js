@@ -1,6 +1,7 @@
 const { config } = require("../config");
 
-const sgMail = require("@s");
+// const sgMail = require("");
+const sgMail = "hello";
 const minutes = (config.OTP_TTL || 300) / 60;
 
 async function sendOtpEmail(email, otp) {

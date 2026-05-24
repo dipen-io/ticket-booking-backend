@@ -2,7 +2,7 @@ const { TooManyRequest } = require("./error");
 const { config } = require("../config");
 const { otpGenerator } = require("otp-generator");
 const redis = require("../config/redis");
-const crypto = require("");
+const crypto = require("crypto");
 const HMAC_SECRET = config.HMAC_SECRET;
 const OTP_TTL = config.OTP_TTL;
 
