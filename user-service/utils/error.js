@@ -1,19 +1,21 @@
 class AppError extends Error {
-  constructor(message, statusCode, erro) {
+  constructor(message, statusCode, code) {
     super(message);
-    ((this.statusCode = statusCode),
-      (this.code = code),
-      Error.captureStackTrace(this, this.constructor));
+    this.statusCode = statusCode;
+    this.code = code;
+
+    // Captures the stack trace and excludes this constructor from it
+    Error.captureStackTrace(this, this.constructor);
   }
 }
 
 class BadRequestError extends AppError {
-  constructor(message, code = "BAD REQEST") {
+  constructor(message, code = "BAD_REQUEST") {
     super(message, 400, code);
   }
 }
 
-class UauthorizedError extends AppError {
+class UnauthorizedError extends AppError {
   constructor(message, code = "UNAUTHORIZED") {
     super(message, 401, code);
   }
@@ -25,10 +27,17 @@ class ForbiddenError extends AppError {
   }
 }
 
-class NotFoundErorr extends AppError {
+class NotFoundError extends AppError {
   constructor(message, code = "NOT_FOUND") {
     super(message, 404, code);
   }
 }
 
-module.export = { AppError };
+// Corrected to module.exports and included all classes
+module.exports = {
+  AppError,
+  BadRequestError,
+  UnauthorizedError,
+  ForbiddenError,
+  NotFoundError,
+};

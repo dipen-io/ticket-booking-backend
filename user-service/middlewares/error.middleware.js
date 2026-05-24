@@ -10,5 +10,10 @@ module.exports = (err, req, res, next) => {
   }
 
   console.error("UNHANDLED ERROR: ", err);
-  next();
+
+  return res.status(500).json({
+    success: false,
+    error: "INTERNAL_SERVER_ERROR",
+    message: "something went wrong on backend. please try again later.",
+  });
 };
