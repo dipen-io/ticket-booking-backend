@@ -1,23 +1,28 @@
 const { PrismaClient } = require("@prisma/client");
-const { config } = require(".");
+const { Pool } = require("pg"); // You need the 'pg' library pool
 const { PrismaPg } = require("@prisma/adapter-pg");
+const { config } = require("./index"); // Assuming this is where config.NODE_ENV lives
 
-const connectionString = process.env.DATABASE_URL;
 const globalForPrisma = global;
 
-const prisma = globalForPrisma.prisma ?? new PrismaClient({});
-
+// 1. Only create a client if one doesn't exist globally
 if (!globalForPrisma.prisma) {
-  const adapter = new PrismaPg({ connectionString });
+    const connectionString = config.DATABASE_URL;
 
-  globalForPrisma.prisma = new PrismaClient({
-    adapter,
-    log: ["error", "warn"],
-  });
+    // The Prisma Pg adapter expects a 'pg' Pool instance, not a raw string
+    const pool = new Pool({ connectionString });
+    const adapter = new PrismaPg(pool);
+
+    globalForPrisma.prisma = new PrismaClient({
+        adapter,
+        log:
+            config.NODE_ENV === "development"
+                ? ["query", "error", "warn"]
+                : ["error", "warn"],
+    });
 }
 
-if (config.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
-}
+// 2. Extract the client to a local variable for exporting
+const prisma = globalForPrisma.prisma;
 
 module.exports = prisma;
