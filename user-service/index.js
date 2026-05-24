@@ -6,6 +6,8 @@ const { logger } = require("./config/logger");
 const { reqLogger } = require("./middlewares/req.middleware");
 const errorHandler = require("./middlewares/error.middleware");
 const { corsMiddleware } = require("./middlewares/cors.middleware");
+const prisma = require("./config/prisma");
+const RedisClient = require("./config/redis");
 
 const authRoutes = require("./routes/auth.service");
 
@@ -34,7 +36,27 @@ app.use(errorHandler);
 
 const startServer = async () => {
     try {
-        const server = app.listen(config.PORT, () => {
+        logger.info(" Initializing services...");
+
+        // singleton redis instance
+        const redis = RedisClient.getInstance();
+
+        // Boot both Prisma and Redis in parallel
+        await Promise.all([
+            // We wrap the ready check in a promise to ensure it's fully ready before proceeding
+            new Promise((resolve, reject) => {
+                if (redis.status === "ready") return resolve();
+                redis.once("ready", resolve);
+                redis.once("error", reject);
+            }),
+        ]);
+
+        (prisma.$connect(),
+            logger.info(
+                " Database connected successfully via Prisma PgAdapter",
+            ));
+
+        const server = app.listen(config.PORT, async () => {
             logger.info(
                 `${config.SERVICE_NAME} is running on http://localhost:${config.PORT}`,
             );
