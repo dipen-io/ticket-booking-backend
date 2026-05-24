@@ -1,4 +1,4 @@
-const { P } = require("");
+const { PrismaClient } = require("prisma/PrismaClient");
 const { config } = require(".");
 const globalForPrisma = global;
 
