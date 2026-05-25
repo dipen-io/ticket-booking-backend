@@ -1,4 +1,8 @@
-require("dotenv").config();
+// require("dotenv").config();
+const path = require("path");
+require("dotenv").config({
+    path: path.resolve(__dirname, "../../.secrets/shared.env"),
+});
 
 const config = {
     SERVICE_NAME: require("../package.json").name,
