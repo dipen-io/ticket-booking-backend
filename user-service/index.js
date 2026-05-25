@@ -13,17 +13,18 @@ const authRoutes = require("./routes/auth.service");
 
 const app = express();
 
+// Middlewares
 app.use(helmet());
 app.use(corsMiddleware);
 app.use(reqLogger);
 app.use(cookieParser());
-
 app.use(express.json());
 
+// Routes
 app.use("/api/v1/auth", authRoutes);
 
 app.get("/", (req, res) => {
-    res.send("Hello from user-server  ");
+    res.send("Hello from user-server");
 });
 
 app.get("/health", (req, res) => {
@@ -32,18 +33,24 @@ app.get("/health", (req, res) => {
     });
 });
 
+// Global Error Handler (Must be at the very bottom of the middleware stack)
 app.use(errorHandler);
 
 const startServer = async () => {
     try {
-        logger.info(" Initializing services...");
+        logger.info("Initializing services...");
+        console.log("🔍 DEBUG - Current Config URL:", config.REDIS_URL);
+        console.log("🔍 DEBUG - Process Env URL:", process.env.REDIS_URL);
 
-        // singleton redis instance
+        // Singleton redis instance
         const redis = RedisClient.getInstance();
 
-        // Boot both Prisma and Redis in parallel
+        // FIXED: Boot both Prisma and Redis concurrently inside Promise.all
         await Promise.all([
-            // We wrap the ready check in a promise to ensure it's fully ready before proceeding
+            // 1. Prisma Connection
+            prisma.$connect(),
+
+            // 2. Redis Connection Event Wrapper
             new Promise((resolve, reject) => {
                 if (redis.status === "ready") return resolve();
                 redis.once("ready", resolve);
@@ -51,18 +58,17 @@ const startServer = async () => {
             }),
         ]);
 
-        (prisma.$connect(),
-            logger.info(
-                " Database connected successfully via Prisma PgAdapter",
-            ));
+        logger.info("🔌 Database connected successfully via Prisma PgAdapter");
+        logger.info("⚡ Redis client is initialized and ready");
 
-        const server = app.listen(config.PORT, async () => {
+        // Start listening only AFTER dependencies are locked and loaded
+        app.listen(config.PORT, () => {
             logger.info(
-                `${config.SERVICE_NAME} is running on http://localhost:${config.PORT}`,
+                `🚀 ${config.SERVICE_NAME} is running on http://localhost:${config.PORT}`,
             );
         });
     } catch (error) {
-        logger.error("Failed to start server", error);
+        logger.error("💥 Failed to start server during initialization:", error);
         process.exit(1);
     }
 };
