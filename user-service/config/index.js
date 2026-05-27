@@ -1,4 +1,5 @@
 // require("dotenv").config();
+const { asyncWrapProviders } = require("async_hooks");
 const path = require("path");
 require("dotenv").config({
     path: path.resolve(__dirname, "../../.secrets/shared.env"),
@@ -16,6 +17,11 @@ const config = {
     OTP_MAX_VERIFY_ATTEMPTS: process.env.OTP_MAX_VERIFY_ATTEMPTS || 5,
     HMAC_SECRET: process.env.HMAC_SECRET || "hmac_secret",
     DATABASE_URL: process.env.DATABASE_URL,
+    MAIL_PASSWORD: process.env.MAIL_PASSWORD,
+    MAIL_USER: process.env.MAIL_USER,
+    MAIL_HOST: process.env.MAIL_HOST,
+    MAIL_PORT: process.env.MAIL_PORT,
+    MAIL_SEND: process.env.MAIL_SEND,
 };
 
 module.exports = { config };

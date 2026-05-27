@@ -19,7 +19,6 @@ exports.sendOTP = asyncHandlers(async (req, res) => {
         password,
         confirmPassword,
     );
-
     res.cookie("otp_session", otpSessionId, {
         httonly: true,
         secure: true,

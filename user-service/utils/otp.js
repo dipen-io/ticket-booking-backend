@@ -1,12 +1,13 @@
 const { TooManyRequest } = require("./error");
 const { config } = require("../config");
-const { otpGenerator } = require("otp-generator");
-const redis = require("../config/redis");
+const { generate } = require("otp-generator");
+const RedisClient = require("../config/redis");
 const crypto = require("crypto");
 const HMAC_SECRET = config.HMAC_SECRET;
 const OTP_TTL = config.OTP_TTL;
 
 const RATE_MAX = parseInt(config.OTP_RATE_MAX_PER_HOUR || " 5", 10);
+const redis = RedisClient.getInstance();
 
 function hmacFor(email, otp) {
     return crypto
@@ -22,14 +23,15 @@ async function generateAndStoreOtp(meta) {
         throw new TooManyRequest("Too Many Otp request. Try again later");
     }
 
-    const otp = otpGenerator.generate(6, {
-        lowerCaseAlphabets: boolean,
-        upperCaseAlphabets: boolean,
-        specialChars: boolean,
+    const otp = generate(6, {
+        digits: true,
+        lowerCaseAlphabets: false,
+        upperCaseAlphabets: false,
+        specialChars: false,
     });
 
     const otpSessionId = crypto.randomUUID();
-    const hashed = hmacFor(meta, email);
+    const hashed = hmacFor(meta, meta.email);
     await redis.set(
         `otp:session:"${otpSessionId}`,
         JSON.stringify({

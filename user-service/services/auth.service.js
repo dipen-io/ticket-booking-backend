@@ -23,6 +23,7 @@ const sendOTP = async (
     const meta = { firstName, lastName, email, hashedPassword };
     const { otp, otpSessionId } = await generateAndStoreOtp(meta);
     await sendOtpEmail(email, otp);
+    return { otpSessionId };
 };
 
 module.exports = { sendOTP };
