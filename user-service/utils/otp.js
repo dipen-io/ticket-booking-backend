@@ -35,7 +35,7 @@ async function generateAndStoreOtp(meta) {
     const hashed = hmacFor( meta.email, otp);
     await redis.set(
         `otp:session:${otpSessionId}`,
-        JSON.stringif({
+        JSON.stringify({
             hashedOtp: hashed,
             meta,
         }),
