@@ -41,6 +41,7 @@ exports.verifyOtpAndSaveUser = asyncHandlers(async (req, res) => {
     }
 
     const user = await authService.verifyOTP(otp, otpSessionId);
+    res.clearCookie("otp_session");
     return res.status(201).json({
         success: true,
         message: "user account created Successfully",
