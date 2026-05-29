@@ -1,5 +1,4 @@
 // require("dotenv").config();
-const { asyncWrapProviders } = require("async_hooks");
 const path = require("path");
 require("dotenv").config({
     path: path.resolve(__dirname, "../../.secrets/shared.env"),
@@ -22,6 +21,12 @@ const config = {
     MAIL_HOST: process.env.MAIL_HOST,
     MAIL_PORT: process.env.MAIL_PORT,
     MAIL_SEND: process.env.MAIL_SEND,
+    JWT_ACCESS_SECRET: process.env.JWT_ACCESS_SECRET,
+    JWT_ACCESS_SECRET_EXPIRY: process.env.JWT_ACCESS_SECRET_EXPIRY,
+    JWT_REFRESH_SECRET: process.env.JWT_ACCESS_SECRET,
+    JWT_REFRESH_SECRET_EXPIRY: process.env.JWT_ACCESS_SECRET_EXPIRY,
+
+    REDIS_USER_TTL: Number(process.env.REDIS_USER_TTL || 86400)
 };
 
 module.exports = { config };

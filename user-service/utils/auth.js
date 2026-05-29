@@ -6,7 +6,7 @@ exports.hashToken = (refreshToken) => {
     return crypto.createHash('sha256').update(refreshToken).digest('hex')
 }
 
-exports.generateToken  = (userId) => {
+exports.generateAccessToken  = (userId) => {
     const payload = {
         id: userId
     }

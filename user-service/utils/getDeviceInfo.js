@@ -14,3 +14,5 @@ function getDeviceFignerPrint(req){
     .digest('hex')
 
 }
+
+module.exports = { getDeviceFignerPrint }
