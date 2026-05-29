@@ -1,8 +1,8 @@
 const prisma = require("../config/prisma");
-const { sendOtpEmail } = require("../utils/email");
-const { ConflictError } = require("../utils/error");
+const { sendOtpEmail, verifyOtpEmail } = require("../utils/email");
+const { ConflictError, BadRequestError } = require("../utils/error");
 const bcrypt = require("bcryptjs");
-const { generateAndStoreOtp } = require("../utils/otp");
+const { generateAndStoreOtp, verifyOtp } = require("../utils/otp");
 
 const sendOTP = async (
     firstName,
@@ -22,8 +22,30 @@ const sendOTP = async (
     const hashedPassword = await bcrypt.hash(password, 12);
     const meta = { firstName, lastName, email, hashedPassword };
     const { otp, otpSessionId } = await generateAndStoreOtp(meta);
+    console.log("OTP:  ", otp);
+    console.log("otpSessionId: ", otpSessionId);
     await sendOtpEmail(email, otp);
+    console.log("issue in sending email");
     return { otpSessionId };
 };
 
-module.exports = { sendOTP };
+const verifyOTP = async (otp, otpSessionId) => {
+    const meta = await verifyOtp(otp, otpSessionId);
+    if (meta === null) {
+        throw new BadRequestError("Invalid OTP or OTP expired")
+    }
+
+    const user = await prisma.user.create({
+        data: {
+            firstName: meta.firstName,
+            lastName: meta.lastName,
+            email: meta.email,
+            password: meta.hashedPassword,
+            emailVerified: true
+        }
+    })
+    await verifyOtpEmail(meta)
+    return user;
+};
+
+module.exports = { sendOTP, verifyOTP };
