@@ -22,10 +22,7 @@ const sendOTP = async (
     const hashedPassword = await bcrypt.hash(password, 12);
     const meta = { firstName, lastName, email, hashedPassword };
     const { otp, otpSessionId } = await generateAndStoreOtp(meta);
-    console.log("OTP:  ", otp);
-    console.log("otpSessionId: ", otpSessionId);
     await sendOtpEmail(email, otp);
-    console.log("issue in sending email");
     return { otpSessionId };
 };
 
